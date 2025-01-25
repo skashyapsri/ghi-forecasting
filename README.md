@@ -33,19 +33,6 @@ scikit-learn
 matplotlib
 ```
 
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/solar-irradiance-forecasting.git
-cd solar-irradiance-forecasting
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
 ## Data Collection
 
 The model uses NASA POWER API to collect hourly GHI data. To fetch data:
