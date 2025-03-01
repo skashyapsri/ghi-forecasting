@@ -1,89 +1,186 @@
-# Global Horizontal Irradiance (GHI) Forecasting with Adversarial Sparse Transformer (AST)
+# Global Horizontal Irradiance (GHI) Forecasting using Adversarial Sparse Transformer
 
-This repository implements an advanced deep learning model for solar irradiance forecasting using an Adversarial Sparse Transformer (AST) architecture. The model is designed to predict Global Horizontal Irradiance (GHI) values with high accuracy for short-term forecasting horizons.
+This project implements an Adversarial Sparse Transformer (AST) architecture for Global Horizontal Irradiance (GHI) forecasting, as described in the thesis "Global Horizontal Irradiance Forecasting using Adversarial Sparse Transformer" (2025).
 
 ## Overview
 
-The AST model combines the powerful attention mechanisms of transformers with sparse attention patterns to efficiently process long sequences of time-series data. The implementation includes:
+The AST architecture combines sparse attention mechanisms through α-entmax transformation (α=1.5) with adversarial training procedures to capture both deterministic patterns and stochastic variations in solar radiation patterns. The model is designed to improve forecasting accuracy and temporal stability across multiple forecast horizons.
 
-- Custom Sparse Transformer architecture
-- Adversarial training framework
-- Adaptive learning components
-- NASA POWER API integration for data collection
+## Features
 
-## Model Architecture
+- **Sparse Attention Mechanism**: Implements α-entmax transformation to focus on relevant historical time steps
+- **Adversarial Training Framework**: Uses a discriminator network for sequence-level evaluation
+- **Enhanced Temporal Modeling**: Captures both short-term fluctuations and long-term patterns
+- **NASA POWER Dataset Integration**: Processes solar radiation and meteorological data
+- **Comprehensive Evaluation**: Reports multiple performance metrics including MAE, RMSE, MAPE, and HSI
+- **Visualization Tools**: Generates plots and reports for model performance analysis
 
-The model consists of several key components:
+## Project Structure
 
-- **Sparse Multi-Head Attention**: Implements efficient attention patterns
-- **Alpha-Entmax Activation**: Provides sparse attention weights
-- **Positional Encoding**: Captures temporal relationships
-- **Encoder-Decoder Structure**: Processes input sequences and generates predictions
-- **Discriminator**: Improves prediction quality through adversarial training
+```
+ghi-forecasting/
+├── config/
+│   └── ghi_ast_config.json       # Configuration file
+├── data/                         # Data directory
+├── models/                       # Saved models
+├── output/                       # Output files
+├── visualizations/               # Visualization output
+├── model.py                      # AST model implementation
+├── data_processing.py            # NASA POWER data processing
+├── train_evaluate.py             # Training and evaluation code
+├── visualization.py              # Visualization tools
+├── ghi_ast_main.py               # Main runner script
+└── README.md                     # This file
+```
 
 ## Requirements
 
-```
-tensorflow>=2.0.0
-torch>=1.8.0
-numpy
-pandas
-requests
-scikit-learn
-matplotlib
-```
+- Python 3.8+
+- TensorFlow 2.5+
+- TensorFlow Addons
+- NumPy
+- Pandas
+- Matplotlib
+- Seaborn
+- Requests
 
-## Data Collection
+You can install the requirements using:
 
-The model uses NASA POWER API to collect hourly GHI data. To fetch data:
-
-1. Configure your location parameters in `fetch_power_data()`
-2. Specify the date range
-3. The API will return hourly GHI values
-
-Example:
-```python
-data = fetch_power_data(
-    lat=40.7128, 
-    lon=-74.0060,
-    start_date="20230101",
-    end_date="20231231"
-)
+```bash
+pip install tensorflow tensorflow-addons numpy pandas matplotlib seaborn requests
 ```
 
-## Model Training
+## Quick Start
 
-The model can be trained using the following steps:
+### 1. Configure the Model
 
-1. Preprocess the data:
-```python
-preprocessor = DataPreprocessor(window_size=24, prediction_hours=1)
-normalized_data = preprocessor.normalize_data(ghi_data)
-X, y = preprocessor.create_sequences(normalized_data)
+Edit the configuration file `config/ghi_ast_config.json` or create a new one to adjust model parameters, data sources, and training settings.
+
+### 2. Training the Model
+
+To train the model:
+
+```bash
+python ghi_ast_main.py --config config/ghi_ast_config.json --mode train --gpu 0
 ```
 
-2. Train the model:
-```python
-model = AST(seq_len=168, pred_len=24)
-train_model(model, train_dataset, val_dataset)
+This will:
+
+- Download and process data from NASA POWER API
+- Create and train the AST model
+- Save model checkpoints
+- Generate training visualizations
+
+### 3. Evaluation
+
+To evaluate a trained model:
+
+```bash
+python ghi_ast_main.py --config config/ghi_ast_config.json --mode evaluate --gpu 0
 ```
+
+This will:
+
+- Load the trained model
+- Evaluate on the test dataset
+- Generate evaluation metrics and visualizations
+- Create an HTML report
+
+### 4. Prediction
+
+To generate predictions for a specific location and time range:
+
+```bash
+python ghi_ast_main.py --config config/ghi_ast_config.json --mode predict --gpu 0
+```
+
+## Model Architecture
+
+The AST architecture consists of two main components:
+
+### Generator Network
+
+- **Encoder-Decoder Architecture**: Processes historical data and generates future GHI values
+- **Sparse Multi-Head Attention**: Uses α-entmax transformation (α=1.5) for focused attention
+- **Position Encodings**: Applies sinusoidal position encoding for temporal awareness
+- **Normalization**: Implements layer normalization for training stability
+
+### Discriminator Network
+
+- **Sequence-Level Evaluation**: Assesses the realism of generated GHI forecasts
+- **Hierarchical Feature Extraction**: Processes temporal patterns at multiple scales
+- **Adaptive Regularization**: Provides adversarial feedback to the generator
+
+## Data Processing
+
+The data processing pipeline includes:
+
+1. **Data Acquisition**: Fetches data from NASA POWER API
+2. **Preprocessing**: Handles missing values and normalizes features
+3. **Feature Engineering**: Creates derived features capturing atmospheric interactions
+4. **Sequence Formation**: Generates input-target pairs using sliding windows
+
+## Parameters
+
+Key configurable parameters include:
+
+- `lookback_history`: Length of historical data sequence (default: 168 hours)
+- `forecast_horizon`: Length of forecast period (default: 24 hours)
+- `num_attention_heads`: Number of attention heads (default: 8)
+- `head_size`: Dimension of each attention head (default: 32)
+- `hidden_size`: Hidden representation dimension (default: 256)
+- `lambda_adversarial`: Weight of adversarial loss (default: 0.1)
+
+See the full configuration template for all available parameters.
 
 ## Performance Metrics
 
+The model is evaluated using multiple metrics:
 
+- **MAE**: Mean Absolute Error
+- **RMSE**: Root Mean Square Error
+- **MAPE**: Mean Absolute Percentage Error
+- **HSI**: Horizon-specific Stability Index, measuring forecast stability across horizons
 
-## Results Visualization
+## Visualization
 
+Visualization tools include:
+
+- Forecast comparison plots
+- Error distribution analysis
+- Temporal stability visualization
+- Attention pattern visualization
+- Training history plots
+- HTML performance reports
+
+## Extending the Project
+
+### Adding New Locations
+
+Edit the `locations` array in the configuration file to add new geographical locations for forecasting.
+
+### Custom Feature Engineering
+
+Extend the `engineer_features` method in `data_processing.py` to create additional derived features.
+
+### Model Modifications
+
+Adjust the AST architecture in `model.py` to experiment with different attention mechanisms or network configurations.
 
 ## Citation
 
+If you use this code in your research, please cite:
+
+```
+Kashyap, S. S. (2025). Global Horizontal Irradiance Forecasting using Adversarial Sparse Transformer.
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
-- NASA POWER Project for providing the solar irradiance data
-- The authors of the original Transformer architecture
-- Contributors to the PyTorch and TensorFlow frameworks
-
-## Contact
-
-For questions and feedback, please open an issue in the GitHub repository.
+- NASA for providing the POWER dataset
+- Authors of the α-entmax transformation paper (Peters et al., 2019)
+- Authors of "Adversarial Sparse Transformer for Time Series Forecasting" (Wu et al., 2020)
