@@ -1,0 +1,55 @@
+{
+	"batch_size": 16,
+	"lookback_history": 168,
+	"forecast_horizon": 24,
+	"num_features": 31,
+	"embedding_size": 32,
+	"hidden_size": 256,
+	"feedforward_size": 1024,
+	"num_hidden_layers": 3,
+	"num_attention_heads": 8,
+	"head_size": 32,
+	"dropout_prob": 0.2,
+	"lambda_adversarial": 0.01,
+	"quantile": 0.5,
+	"learning_rate": 2e-5,
+	"disc_learning_rate": 5e-5,
+	"min_learning_rate": 1e-6,
+	"clip_gradients": 1.0,
+	"early_stopping_patience": 15,
+	"pretrain_epochs": 20,
+	"disc_pretrain_epochs": 5,
+
+	"parameters": [
+		"ALLSKY_SFC_SW_DWN",
+		"ALLSKY_TOA_SW_DWN",
+		"ALLSKY_KT",
+		"T2M",
+		"RH2M",
+		"PS",
+		"WS2M",
+		"WD2M",
+		"CLOUD_AMT"
+	],
+	"locations": [
+		{
+			"name": "Bengaluru",
+			"lat": 12.971599,
+			"lon": 77.594566
+		}
+	],
+	"start_date": "20200301",
+	"end_date": "20230301",
+	"train_split": 0.7,
+	"val_split": 0.15,
+
+	"model_dir": "models/ghi_ast_enhanced",
+	"data_dir": "data",
+	"output_dir": "output",
+	"visualization_dir": "visualizations",
+	"epochs": 30,
+
+	"use_feature_matching": true,
+	"gradient_penalty_weight": 10.0,
+	"label_smoothing": 0.1
+}
